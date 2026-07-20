@@ -2,10 +2,15 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import path from "path";
+import { fileURLToPath } from "url";
 import connectDatabase from "./config/database.js";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import websiteRoutes from "./routes/website.routes.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -26,6 +31,15 @@ app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/website", websiteRoutes);
 
+// Serve static compiled frontend assets from client/dist
+const clientDistPath = path.join(__dirname, "../client/dist");
+app.use(express.static(clientDistPath));
+
+// Direct all remaining GET routes to client/dist/index.html for SPA routing
+app.get("*", (req, res) => {
+  res.sendFile(path.join(clientDistPath, "index.html"));
+});
+
 // Global fallback error handler middleware
 app.use((err, req, res, next) => {
   console.error("Unhandled Application Error:", err);
@@ -42,4 +56,3 @@ app.listen(PORT, async () => {
   console.log(`Server is running at http://localhost:${PORT}`);
   await connectDatabase();
 });
-
