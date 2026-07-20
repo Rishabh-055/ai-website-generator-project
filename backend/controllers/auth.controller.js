@@ -90,7 +90,7 @@ export const authenticateDemoUser = async (req, res) => {
         email: demoEmail,
         avatar: "https://ui-avatars.com/api/?name=Demo+Guest&background=6366f1&color=fff",
         credit: 500,
-        plan: "Free",
+        plan: "free",
       });
     }
 

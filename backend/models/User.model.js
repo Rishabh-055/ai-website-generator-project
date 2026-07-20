@@ -26,6 +26,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["free", "pro", "enterprise"],
       default: "free",
+      lowercase: true,
+      trim: true,
     },
   },
   { 
