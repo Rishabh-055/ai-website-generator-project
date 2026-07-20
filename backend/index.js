@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import connectDatabase from "./config/database.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -26,21 +27,28 @@ app.use(
   })
 );
 
-// Register API Route handlers
+// 1. API Route Handlers (MUST come first)
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/website", websiteRoutes);
 
-// Serve static compiled frontend assets from client/dist
+// 2. Serve static compiled frontend assets if client/dist exists
 const clientDistPath = path.join(__dirname, "../client/dist");
-app.use(express.static(clientDistPath));
 
-// Direct all remaining GET routes to client/dist/index.html for SPA routing
-app.get("*", (req, res) => {
-  res.sendFile(path.join(clientDistPath, "index.html"));
-});
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
 
-// Global fallback error handler middleware
+  // Catch-all route for SPA Routing (MUST come after API routes)
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(clientDistPath, "index.html"));
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.status(200).send("API Server is running successfully. Client assets not found at client/dist.");
+  });
+}
+
+// 3. Global fallback error handler middleware (MUST be at the very bottom)
 app.use((err, req, res, next) => {
   console.error("Unhandled Application Error:", err);
   res.status(err.status || 500).json({
