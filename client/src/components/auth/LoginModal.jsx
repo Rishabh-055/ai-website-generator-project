@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
+import { FaUserShield } from "react-icons/fa";
 import { auth, googleAuthProvider } from "../../firebase.js";
 import { signInWithPopup } from "firebase/auth";
 import { useDispatch } from "react-redux";
@@ -34,7 +35,29 @@ function LoginModal({ isOpen, onClose }) {
       }
     } catch (error) {
       console.error("Failed to authenticate user via Google:", error);
-      const msg = error?.response?.data?.message || error?.message || "Authentication failed. Please try again.";
+      const msg = error?.response?.data?.message || error?.message || "Google authentication failed. You can use Demo Guest Login below.";
+      setErrorMessage(msg);
+      setIsAuthenticating(false);
+    }
+  };
+
+  const handleDemoAuth = async () => {
+    setIsAuthenticating(true);
+    setErrorMessage("");
+
+    try {
+      const response = await apiClient.post("/auth/demo-login");
+
+      if (response.data?.user) {
+        dispatch(setCredentials(response.data.user));
+        setIsAuthenticating(false);
+        onClose();
+      } else {
+        throw new Error(response.data?.message || "Demo sign-in failed.");
+      }
+    } catch (error) {
+      console.error("Demo login error:", error);
+      const msg = error?.response?.data?.message || error?.message || "Demo sign-in failed. Please try again.";
       setErrorMessage(msg);
       setIsAuthenticating(false);
     }
@@ -72,9 +95,30 @@ function LoginModal({ isOpen, onClose }) {
               </div>
             )}
 
+            {/* 1-Click Demo Guest Authentication Button */}
             <button
               disabled={isAuthenticating}
-              className={`w-full h-[55px] bg-white text-black rounded-xl 
+              className={`w-full h-[52px] bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl font-bold shadow-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 mb-3 ${
+                isAuthenticating ? "opacity-70 cursor-not-allowed" : "hover:scale-[1.02]"
+              }`}
+              onClick={handleDemoAuth}
+            >
+              <FaUserShield size={18} />
+              <span>Demo Guest Login (1-Click)</span>
+            </button>
+
+            <div className="flex justify-center items-center my-3">
+              <div className="h-px flex-1 bg-white/10" />
+              <span className="text-[11px] tracking-wide text-zinc-500 px-3 uppercase font-mono">
+                OR OAUTH
+              </span>
+              <div className="h-px flex-1 bg-white/10" />
+            </div>
+
+            {/* Google OAuth Button */}
+            <button
+              disabled={isAuthenticating}
+              className={`w-full h-[52px] bg-white text-black rounded-xl 
               flex items-center justify-center gap-3 
               font-semibold shadow-md 
               hover:shadow-lg transition-all duration-200 ${
@@ -89,7 +133,7 @@ function LoginModal({ isOpen, onClose }) {
                 </div>
               ) : (
                 <>
-                  <FcGoogle size={24} />
+                  <FcGoogle size={22} />
                   <span>Continue with Google</span>
                 </>
               )}
@@ -102,16 +146,8 @@ function LoginModal({ isOpen, onClose }) {
             >
               Cancel
             </button>
-            
-            <div className="flex justify-center items-center p-[10px] my-2">
-              <div className="h-px flex-1 bg-white/10" />
-              <span className="text-xs tracking-wide text-zinc-500 px-3 uppercase">
-                Secure Login
-              </span>
-              <div className="h-px flex-1 bg-white/10" />
-            </div>
-            
-            <div className="text-gray-400 font-light text-center text-xs space-y-1">
+
+            <div className="text-gray-400 font-light text-center text-xs mt-4 space-y-1">
               <p>By continuing you agree to our</p>
               <div className="flex justify-center gap-2">
                 <span className="underline cursor-pointer hover:text-gray-300">
