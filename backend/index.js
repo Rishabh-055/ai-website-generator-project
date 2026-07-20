@@ -38,8 +38,8 @@ const clientDistPath = path.join(__dirname, "../client/dist");
 if (fs.existsSync(clientDistPath)) {
   app.use(express.static(clientDistPath));
 
-  // Catch-all route for SPA Routing (MUST come after API routes)
-  app.get("*", (req, res) => {
+  // Express 5 compatible regex catch-all route for SPA Routing
+  app.get(/(.*)/, (req, res) => {
     res.sendFile(path.join(clientDistPath, "index.html"));
   });
 } else {
