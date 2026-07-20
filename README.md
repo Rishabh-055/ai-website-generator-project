@@ -4,6 +4,12 @@ An enterprise-grade, full-stack AI SaaS platform built with the MERN stack (Mong
 
 ---
 
+## 🌐 Live Demo
+
+🔗 **Live Application URL**: [https://ai-website-generator-backend-awd7.onrender.com/](https://ai-website-generator-backend-awd7.onrender.com/)
+
+---
+
 ## 🌟 Overview
 
 GenWeb.AI provides an automated website creation workspace where users can:
